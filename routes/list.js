@@ -4,43 +4,81 @@ const router = express.Router();
 
 const dbHelper = require("../dbHelper");
 
-router.get("", (req, res) => {
+router.get("", (req, res, next) => {
  const db = dbHelper.getDb();
 
  db
   .collection("lists")
-  .findOne({ current: true }, { projection: { _id: 0 } })
+  .findOne({ current: true })
   .then(currentList => {
-   if (currentList != null) return res.json(currentList);
-   else {
+   if (currentList != null) {
+    const productsList = currentList.products;
+    productsList.sort((a, b) => {
+     if (a.category > b.category) return 1;
+     if (a.category < b.category) return -1;
+     if (a.name > b.name) return 1;
+     if (a.name < b.name) return -1;
+     return 0;
+    });
+    res.json(productsList);
+   } else {
     db
      .collection("products")
      .find()
+     .sort({ category: 1, name: 1 })
      .toArray()
-     .then(allProducts => {
-      const output = { leftColumn: { products: {} }, current: true };
-      allProducts.forEach(product => {
-       !output.leftColumn.products[product.category]
-        ? (output.leftColumn.products[product.category] = [product])
-        : output.leftColumn.products[product.category].push(product);
-      });
-      res.json(output);
-     });
+     .then(products => {
+      res.json(products);
+     })
+     .catch(next);
    }
   });
+
+ //  db
+ //   .collection("products")
+ //   .find()
+ //   .toArray()
+ //   .then(allProducts => {
+ //      else {
+ //       const output = { leftColumn: { products: {} }, current: true };
+ //       allProducts.forEach(product => {
+ //        !output.leftColumn.products[product.category]
+ //         ? (output.leftColumn.products[product.category] = [product])
+ //         : output.leftColumn.products[product.category].push(product);
+ //       });
+ //       res.json(output);
+ //      }
+ //     });
+ //   });
 });
 
-router.post("/", (req, res) => {
+router.post("/", (req, res, next) => {
  const db = dbHelper.getDb();
 
- try {
-  db
-   .collection("lists")
-   .replaceOne({ current: true }, req.body, { upsert: true })
-   .then(result => res.json(result));
- } catch (error) {
-  console.log(error);
- }
+ const data = { products: req.body, current: true };
+
+ db
+  .collection("lists")
+  .replaceOne({ current: true }, data, { upsert: true })
+  .then(result => res.json(result))
+  .catch(next);
+});
+
+router.post("/finalize", (req, res, next) => {
+ const db = dbHelper.getDb();
+
+ db
+  .collection("lists")
+  .updateOne(
+   { current: true },
+   {
+    $set: {
+     current: false,
+    },
+   }
+  )
+  .then(result => res.json(result))
+  .catch(next);
 });
 
 module.exports = router;
