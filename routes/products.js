@@ -20,4 +20,19 @@ router.post("/", (req, res, next) => {
   .catch(next);
 });
 
+router.get("/eatable/", (req, res, next) => {
+ const db = dbHelper.getDb();
+
+ db
+  .collection("products")
+  .find()
+  .sort({ name: 1 })
+  .toArray()
+  .then(products => {
+   const eatable = products.filter(product => product.category !== "Chem");
+   res.json(eatable);
+  })
+  .catch(next);
+});
+
 module.exports = router;

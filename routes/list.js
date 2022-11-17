@@ -33,23 +33,6 @@ router.get("", (req, res, next) => {
      .catch(next);
    }
   });
-
- //  db
- //   .collection("products")
- //   .find()
- //   .toArray()
- //   .then(allProducts => {
- //      else {
- //       const output = { leftColumn: { products: {} }, current: true };
- //       allProducts.forEach(product => {
- //        !output.leftColumn.products[product.category]
- //         ? (output.leftColumn.products[product.category] = [product])
- //         : output.leftColumn.products[product.category].push(product);
- //       });
- //       res.json(output);
- //      }
- //     });
- //   });
 });
 
 router.post("/", (req, res, next) => {

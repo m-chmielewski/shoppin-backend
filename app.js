@@ -9,6 +9,7 @@ const dbHelper = require("./dbHelper.js");
 
 const productsSeed = require("./productsSeed");
 
+const authRoutes = require("./routes/auth");
 const listRoutes = require("./routes/list");
 const categoriesRoutes = require("./routes/categories");
 const productsRoutes = require("./routes/products");
@@ -20,6 +21,7 @@ app.use(bodyParser.json());
 
 app.use(express.static(path.join("client")));
 
+app.use("/backend/auth/", authRoutes);
 app.use("/backend/list/", listRoutes);
 app.use("/backend/categories/", categoriesRoutes);
 app.use("/backend/products/", productsRoutes);
