@@ -25,12 +25,11 @@ router.get("/eatable/", (req, res, next) => {
 
  db
   .collection("products")
-  .find()
+  .find({ category: { $ne: "Chem" } })
   .sort({ name: 1 })
   .toArray()
   .then(products => {
-   const eatable = products.filter(product => product.category !== "Chem");
-   res.json(eatable);
+   res.json(products);
   })
   .catch(next);
 });
